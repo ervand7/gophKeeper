@@ -1,0 +1,221 @@
+syntax = "proto3";
+
+package gophkeeper;
+
+option go_package = "grpc/proto";
+
+message RegisterRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message RegisterResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+message AuthRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message AuthResponse {
+  string token = 1;
+  int32 status = 2;
+}
+
+message DeleteUserRequest {
+  string login = 1;
+}
+
+message DeleteUserResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+
+message Credentials {
+  string title = 1;
+  string login = 2;
+  string password = 3;
+  string created_at = 4;
+  string updated_at = 5;
+  string meta = 6;
+}
+
+message Text {
+  string title = 1;
+  string content = 2;
+  string created_at = 3;
+  string updated_at = 4;
+  string meta = 5;
+}
+
+message BinaryData {
+  string title = 1;
+  bytes content = 2;
+  string created_at = 3;
+  string updated_at = 4;
+  string meta = 5;
+}
+
+message BankCard {
+  string title = 1;
+  string card_holder = 2;
+  string card_number = 3;
+  string card_expire = 4;
+  string card_cvv = 5;
+  string created_at = 6;
+  string updated_at = 7;
+  string meta = 8;
+}
+
+message UserData {
+  Credentials credentials = 1;
+  Text text = 2;
+  BinaryData binary_data = 3;
+  BankCard bank_card = 4;
+}
+
+message StreamFromServerDBRequest {
+}
+
+message StreamFromServerDBResponse {
+  UserData user_data = 1;
+  int32 status = 2;
+}
+
+
+message CreateCredentialsRequest {
+  Credentials credentials = 1;
+}
+
+message CreateCredentialsResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+message CreateTextRequest {
+  Text text = 1;
+}
+
+message CreateTextResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+message CreateBinaryDataRequest {
+  BinaryData binary_data = 1;
+}
+
+message CreateBinaryDataResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+message CreateBankCardRequest {
+  BankCard bank_card = 1;
+}
+
+message CreateBankCardResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+
+message UpdateCredentialsRequest {
+  Credentials credentials = 1;
+}
+
+message UpdateCredentialsResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+message UpdateTextRequest {
+  Text text = 1;
+}
+
+message UpdateTextResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+message UpdateBinaryDataRequest {
+  BinaryData binary_data = 1;
+}
+
+message UpdateBinaryDataResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+message UpdateBankCardRequest {
+  BankCard bank_card = 1;
+}
+
+message UpdateBankCardResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+
+message DeleteCredentialsRequest {
+  string title = 1;
+}
+
+message DeleteCredentialsResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+message DeleteTextRequest {
+  string title = 1;
+}
+
+message DeleteTextResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+message DeleteBinaryDataRequest {
+  string title = 1;
+}
+
+message DeleteBinaryDataResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+message DeleteBankCardRequest {
+  string title = 1;
+}
+
+message DeleteBankCardResponse {
+  bool success = 1;
+  int32 status = 2;
+}
+
+
+service Service {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Auth(AuthRequest) returns (AuthResponse);
+  rpc Delete(DeleteUserRequest) returns (DeleteUserResponse);
+
+  rpc StreamServerDB(StreamFromServerDBRequest) returns (stream StreamFromServerDBResponse) {};
+
+  rpc CreateCredentials(CreateCredentialsRequest) returns (CreateCredentialsResponse);
+  rpc CreateText(CreateTextRequest) returns (CreateTextResponse);
+  rpc CreateBinaryData(CreateBinaryDataRequest) returns (CreateBinaryDataResponse);
+  rpc CreateBankCard(CreateBankCardRequest) returns (CreateBankCardResponse);
+
+  rpc UpdateCredentials(UpdateCredentialsRequest) returns (UpdateCredentialsResponse);
+  rpc UpdateText(UpdateTextRequest) returns (UpdateTextResponse);
+  rpc UpdateBinaryData(UpdateBinaryDataRequest) returns (UpdateBinaryDataResponse);
+  rpc UpdateBankCard(UpdateBankCardRequest) returns (UpdateBankCardResponse);
+
+  rpc DeleteCredentials(DeleteCredentialsRequest) returns (DeleteCredentialsResponse);
+  rpc DeleteText(DeleteTextRequest) returns (DeleteTextResponse);
+  rpc DeleteBinaryData(DeleteBinaryDataRequest) returns (DeleteBinaryDataResponse);
+  rpc DeleteBankCard(DeleteBankCardRequest) returns (DeleteBankCardResponse);
+}

@@ -1,0 +1,216 @@
+База сервера (Postgres):
+ - user:
+    id UUID
+    login varchar(20)
+    password varchar(500)
+    token varchar(500)
+
+ - credentials:
+    id UUID
+    user_id UUID
+    title varchar(20)
+    login varchar(20)
+    password varchar(500)
+    created_at datetime
+    updated_at datetime
+    meta JSONB
+
+    unique constraint user_id, title
+
+ - text:
+    id UUID
+    user_id UUID
+    title varchar(20)
+    content varchar(1000)
+    created_at datetime
+    updated_at datetime
+    meta JSONB
+
+    unique constraint user_id, title
+
+ - binary_data:
+    id UUID
+    user_id UUID
+    title varchar(20)
+    content bytea
+    created_at datetime
+    updated_at datetime
+    meta JSONB
+
+    unique constraint user_id, title
+
+ - bank_card:
+    id UUID
+    user_id UUID
+    title varchar(20)
+    card_holder varchar(500)
+    card_number varchar(500)
+    card_expire date
+    card_cvv  varchar(500)
+    created_at datetime
+    updated_at datetime
+    meta JSONB
+
+    unique constraint user_id, title
+
+_____________________________________________________________________________
+Синхронизация через streaming:
+Вся база клиента представляет собой структуру MemoryStorage:
+
+type Credentials struct {
+	id        string
+	userId    string
+	title     string
+	login     string
+	password  string
+	createdAt time.Time
+	updatedAt time.Time
+	meta      map[string]string
+}
+
+type Text struct {
+	id        string
+	userId    string
+	title     string
+	content   string
+	createdAt time.Time
+	updatedAt time.Time
+	meta      map[string]string
+}
+
+type BinaryData struct {
+	id        string
+	userId    string
+	title     string
+	content   []byte
+	createdAt time.Time
+	updatedAt time.Time
+	meta      map[string]string
+}
+
+type BankCard struct {
+	id         string
+	userId     string
+	title      string
+	cardHolder string
+	cardNumber string
+	cardExpire string
+	cardCVV    string
+	createdAt  time.Time
+	updatedAt  time.Time
+	meta       string
+}
+
+type MemoryStorage struct {
+	credentials Credentials
+	text        Text
+	binaryData  BinaryData
+	bankCard    BankCard
+}
+
+_____________________________________________________________________________
+Пользовательские сценарии (регистрация/аутентификация/авторизация):
+    регистрация:
+        сервер проверяет, есть ли уже зарегистрированный юзер с таким логином.
+        - если есть:
+            - возвращает ошибку
+        - если нет:
+            - создает у себя юзера
+
+    аутентификация/авторизация:
+        сервер проверяет, есть ли уже зарегистрированный юзер с таким логином.
+        - если нет:
+            - возвращает ошибку
+        - если есть:
+            - генерит токен и записывает его к себе в базу
+            - возвращает кодированный токен клиенту
+            - клиент сохраняет у себя токен в память
+            - клиент в отдельной горутине отправляет запрос с токеном серверу на открытие стрима
+            - сервер в отдельной горутине шлет клиенту в бесконечном цикле
+            структуру со всеми данными конкретного юзера
+            - клиент в бесконечном цикле обновляет данные своей структуры MemoryStorage
+
+        при повторной аутентификации генерится новый токен
+
+    удаление пользователя:
+        сервер проверяет, есть ли уже зарегистрированный юзер с таким логином.
+        - если нет:
+            - возвращает ошибку
+        - если есть:
+            - закрывает стрим с клиентом, который был в отдельной горутине
+            - удаляет у себя юзера
+
+_____________________________________________________________________________
+Пользовательские сценарии (CRUD):
+    - case Create:
+        - клиент отправляет на сервер один из 4 возможных вызовов функций:
+            1) CreateCredentials со вложенной структурой Credentials
+            2) CreateText со вложенной структурой Text
+            3) CreateBinaryData со вложенной структурой BinaryData
+            4) CreateBankCard со вложенной структурой BankCard
+        - сервер проверяет, есть ли уже запись с таким title:
+            - если есть, то возвращает ошибку
+            - если нет, то:
+                - возвращает ok
+                - записывает себе в базу новую запись
+
+    - case Read:
+        - клиент читает у себя из памяти:
+            1) ReadCredentials
+            2) ReadText
+            3) ReadBinaryData
+            4) ReadBinaryBinaryData
+
+    - case Update:
+        - клиент отправляет на сервер один из 4 возможных вызовов функций:
+            1) UpdateCredentials со вложенной структурой Credentials
+            2) UpdateText со вложенной структурой Text
+            3) UpdateBinaryData со вложенной структурой BinaryData
+            4) UpdateBankCard со вложенной структурой BankCard
+        - сервер проверяет, есть ли запись с таким title:
+            - если нет, то возвращает ошибку
+            - если есть, то:
+                - возвращает ok
+                - обновляет данную запись у себя в базе
+
+    - case Delete:
+        - клиент отправляет на сервер один из 4 возможных вызовов функций:
+            1) DeleteCredentials с title определенного Credentials
+            2) DeleteText с title определенного Text
+            3) DeleteBinaryData с title определенного BinaryData
+            4) DeleteBankCard с title определенного BankCard
+        - сервер проверяет, есть ли запись с таким title:
+            - если нет, то возвращает ошибку
+            - если есть, то:
+                - возвращает ok
+                - удаляет у себя эту запись
+
+
+_____________________________________________________________________________
+Команды в TUI:
+- sign-in
+- log-in
+- log-out
+- delete-user
+
+- create-credentials
+- create-text
+- create-binary-data
+- create-bank-card
+
+- get-credentials
+- get-text
+- get-binary-data
+- get-bank-card
+
+- update-credentials
+- update-text
+- update-binary-data
+- update-bank-card
+
+- delete-credentials
+- delete-text
+- delete-binary-data
+- delete-bank-card
+
+- exit

@@ -1,0 +1,18 @@
+version: "3.7"
+services:
+  db:
+    container_name: db
+    image: postgres:14.3-alpine
+    ports:
+      - "5466:5432"
+    environment:
+      - POSTGRES_USER=ervand
+      - POSTGRES_PASSWORD=ervand
+      - POSTGRES_DB=goph_keeper
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - default
+
+volumes:
+  postgres-data:

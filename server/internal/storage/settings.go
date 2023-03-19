@@ -90,6 +90,6 @@ func (db *Database) migrate() (err error) {
 func getMigrationsDir() string {
 	_, currentFile, _, _ := runtime.Caller(0)
 	currentDir := filepath.Dir(currentFile)
-	migrationsDir := filepath.Join(currentDir, "/../../migrations")
+	migrationsDir := filepath.Join(currentDir, "/../../../migrations")
 	return migrationsDir
 }

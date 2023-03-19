@@ -1,18 +1,37 @@
-version: "3.7"
+version: "3.4"
 services:
-  db:
-    container_name: db
+  gophkeeper:
+    container_name: gophkeeper
+    image: gophkeeper-server:develop
+    environment:
+      DATABASE_DSN: "user=ervand password=ervand dbname=goph_keeper host=pgserver port=5432 sslmode=disable"
+    ports:
+      - "8080:8080"
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./server:/app/server
+    depends_on:
+      - pgserver
+    restart: always
+
+  pgserver:
+    container_name: pg-gophkeeper
+    hostname: postgres-gophkeeper
     image: postgres:14.3-alpine
     ports:
-      - "5466:5432"
-    environment:
-      - POSTGRES_USER=ervand
-      - POSTGRES_PASSWORD=ervand
-      - POSTGRES_DB=goph_keeper
+      - "5432:5432"
+      - "5477:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    networks:
-      - default
+    environment:
+      POSTGRES_USER: ervand
+      POSTGRES_PASSWORD: ervand
+      POSTGRES_DB: goph_keeper
+    restart: always
 
 volumes:
   postgres-data:

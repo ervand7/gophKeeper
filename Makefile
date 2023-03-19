@@ -10,9 +10,21 @@ runserver:
 downserver:
 	docker-compose down
 
-.PHONY: runclient # Run client_darwin_arm64 with "qwerty" encryptionKey
-runclient:
+.PHONY: runclient-darwin-amd64 # Run client for darwin-amd64 with "qwerty" encryptionKey
+runclient-darwin-amd64:
+	cd client/cmd && encryptionKey=qwerty ./client_darwin_amd64
+
+.PHONY: runclient-darwin-arm64 # Run client for darwin-arm64 with "qwerty" encryptionKey
+runclient-darwin-arm64:
 	cd client/cmd && encryptionKey=qwerty ./client_darwin_arm64
+
+.PHONY: runclient-linux-amd64 # Run client for linux-amd64 with "qwerty" encryptionKey
+runclient-linux-amd64:
+	cd client/cmd && encryptionKey=qwerty ./client_linux_amd64
+
+.PHONY: runclient-windows-amd64 # Run client for windows-amd64 with "qwerty" encryptionKey
+runclient-windows-amd64:
+	cd client/cmd && encryptionKey=qwerty ./client_windows_amd64
 
 .PHONY: build-server # Build server executable file
 build-server:
